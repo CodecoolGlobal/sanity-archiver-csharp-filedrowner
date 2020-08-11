@@ -45,9 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\DriveExplorer.cs" />
-    <Compile Include="Models\Folder.cs" />
-    <Compile Include="Models\MenuItem.cs" />
+    <Compile Include="Enum\ItemType.cs" />
+    <Compile Include="Models\BaseObject.cs" />
+    <Compile Include="Models\DummyFileSystemObjectInfo.cs" />
+    <Compile Include="Models\FileSystemObjectInfo.cs" />
+    <Compile Include="Models\PropertyNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

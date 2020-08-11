@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SanityArchiver.Application.Models;
-using SanityArchiver.DesktopUI.ViewModels;
 
 namespace SanityArchiver.DesktopUI.Views
 {
@@ -11,10 +12,7 @@ namespace SanityArchiver.DesktopUI.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
-        /// </summary>
-        private MainViewModel _vm;
+        private TreeView _treeView = new TreeView();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
@@ -22,15 +20,35 @@ namespace SanityArchiver.DesktopUI.Views
         public MainWindow()
         {
             InitializeComponent();
-            _vm = new MainViewModel();
-            DataContext = _vm;
-            _vm.FillUpMenuItems();
-            treeViewMenu.Items.Add(_vm.MenuItems);
+            InitializeFileSystemObjects();
         }
 
-        private void TreeViewMenu_Expanded(object sender, RoutedEventArgs e)
+        private void InitializeFileSystemObjects()
         {
-            TreeViewItem item = e.Source as TreeViewItem;
+            var drives = DriveInfo.GetDrives();
+            DriveInfo.GetDrives().ToList().ForEach(drive =>
+            {
+                var fileSystemObject = new FileSystemObjectInfo(drive);
+                fileSystemObject.BeforeExplore += FileSystemObject_BeforeExplore;
+                fileSystemObject.AfterExplore += FileSystemObject_AfterExplore;
+                treeView.Items.Add(fileSystemObject);
+                treeView.Tag = fileSystemObject.Title;
+            });
+        }
+
+        private void FileSystemObject_AfterExplore(object sender, System.EventArgs e)
+        {
+            Cursor = Cursors.Arrow;
+        }
+
+        private void FileSystemObject_BeforeExplore(object sender, System.EventArgs e)
+        {
+            Cursor = Cursors.Wait;
+        }
+
+        private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            /*TreeViewItem treeViewItem = sender as TreeViewItem;*/
         }
     }
 }
