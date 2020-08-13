@@ -39,6 +39,8 @@ namespace SanityArchiver.Application.Models
             Children = new ObservableCollection<FileSystemObjectInfo>();
             FileSystemInfo = info;
             Title = info.Name;
+            Path = info.FullName;
+            CreationDate = info.CreationTime;
 
             if (info is DirectoryInfo)
             {
@@ -89,10 +91,45 @@ namespace SanityArchiver.Application.Models
         /// <summary>
         /// Gets or sets the tag of the TreeView Item
         /// </summary>
-        public object Title
+        public string Title
         {
-            get { return GetValue<FileSystemInfo>("Title"); }
-            set { SetValue("Title", value); }
+            get
+            {
+                return GetValue<string>("Title");
+            }
+
+            set
+            {
+                SetValue("Title", value);
+                OnPropertyChanged("Title");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the creation Date of the Folder/File
+        /// </summary>
+        public DateTime CreationDate
+        {
+            get { return GetValue<DateTime>("CreationDate"); }
+            set { SetValue("CreationDate", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets path of the File
+        /// </summary>
+        public string Path
+        {
+            get { return GetValue<string>("Path"); }
+            set { SetValue("Path", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets size of the File, only works for Files!!
+        /// </summary>
+        public long Size
+        {
+            get { return GetValue<long>("Size"); }
+            set { SetValue("Size", value); }
         }
 
         /// <summary>

@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using SanityArchiver.Application.Models;
+using SanityArchiver.DesktopUI.ViewModels;
 
 namespace SanityArchiver.DesktopUI.Views
 {
@@ -12,15 +16,17 @@ namespace SanityArchiver.DesktopUI.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private TreeView _treeView = new TreeView();
+        private MainViewModel _vm;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
         public MainWindow()
         {
+            _vm = MainViewModel.GetInstance();
             InitializeComponent();
             InitializeFileSystemObjects();
+            DataContext = _vm;
         }
 
         private void InitializeFileSystemObjects()
@@ -32,7 +38,7 @@ namespace SanityArchiver.DesktopUI.Views
                 fileSystemObject.BeforeExplore += FileSystemObject_BeforeExplore;
                 fileSystemObject.AfterExplore += FileSystemObject_AfterExplore;
                 treeView.Items.Add(fileSystemObject);
-                treeView.Tag = fileSystemObject.Title;
+                /*treeView.Tag = fileSystemObject.Path;*/
             });
         }
 
@@ -46,9 +52,21 @@ namespace SanityArchiver.DesktopUI.Views
             Cursor = Cursors.Wait;
         }
 
-        private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void TreeViewItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            /*TreeViewItem treeViewItem = sender as TreeViewItem;*/
+            TreeViewItem treeViewItem = sender as TreeViewItem;
+            e.Handled = true;
+            string selectedItemTag = treeViewItem.Tag.ToString();
+            _vm.ClearSearchedObjects();
+            _vm.SearchForFolder(selectedItemTag);
+        }
+
+        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = sender as ListViewItem;
+            _vm.SelectAnItem(item.Tag.ToString());
+            RenameWindow popUp = new RenameWindow();
+            popUp.Show();
         }
     }
 }
