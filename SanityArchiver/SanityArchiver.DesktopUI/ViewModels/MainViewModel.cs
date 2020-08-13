@@ -79,32 +79,50 @@ namespace SanityArchiver.DesktopUI.ViewModels
         {
             try
             {
-            FileAttributes attributes = File.GetAttributes(path);
-            if (attributes.HasFlag(FileAttributes.Directory))
-            {
-                var dirs = Directory.GetFileSystemEntries(path, "*");
-                foreach (string dir in dirs)
+                FileAttributes attributes = File.GetAttributes(path);
+                if (attributes.HasFlag(FileAttributes.Directory))
                 {
-                    FileAttributes fileAttribute = File.GetAttributes(dir);
-                    if (fileAttribute.HasFlag(FileAttributes.Directory))
+                    var dirs = Directory.GetFileSystemEntries(path, "*");
+                    foreach (string dir in dirs)
                     {
-                        DirectoryInfo info = new DirectoryInfo(dir);
-                        AddToSearchedObjectList(new FileSystemObjectInfo(info.Root) { Title = info.Name, CreationDate = info.CreationTime, Path = info.FullName });
-                    }
-                    else
-                    {
-                        FileInfo info = new FileInfo(dir);
-                        AddToSearchedObjectList(new FileSystemObjectInfo(info.Directory.Root) { Title = info.Name, CreationDate = info.CreationTime, Size = info.Length, Path = info.FullName });
+                        FileAttributes fileAttribute = File.GetAttributes(dir);
+                        if (fileAttribute.HasFlag(FileAttributes.Directory))
+                        {
+                            DirectoryInfo info = new DirectoryInfo(dir);
+                            bool isHidden = false;
+                            if (info.Attributes.HasFlag(FileAttributes.Hidden))
+                            {
+                                isHidden = true;
+                            }
+
+                            AddToSearchedObjectList(new FileSystemObjectInfo(info.Root) { Title = info.Name, CreationDate = info.CreationTime, Path = info.FullName, Hidden = isHidden });
+                        }
+                        else
+                        {
+                            FileInfo info = new FileInfo(dir);
+                            bool isHidden = false;
+                            if (info.Attributes.HasFlag(FileAttributes.Hidden))
+                            {
+                                isHidden = true;
+                            }
+
+                            AddToSearchedObjectList(new FileSystemObjectInfo(info.Directory.Root) { Title = info.Name, CreationDate = info.CreationTime, Size = info.Length, Path = info.FullName, Hidden = isHidden });
+                        }
                     }
                 }
-            }
-            else
-            {
-                var fileName = Path.GetFileName(path);
+                else
+                {
+                    var fileName = Path.GetFileName(path);
 
-                FileInfo info = new FileInfo(fileName);
-                AddToSearchedObjectList(new FileSystemObjectInfo(info.Directory.Root) { Title = info.Name, CreationDate = info.CreationTime, Path = info.FullName });
-            }
+                    FileInfo info = new FileInfo(fileName);
+                    bool isHidden = false;
+                    if (info.Attributes.HasFlag(FileAttributes.Hidden))
+                    {
+                        isHidden = true;
+                    }
+
+                    AddToSearchedObjectList(new FileSystemObjectInfo(info.Directory.Root) { Title = info.Name, CreationDate = info.CreationTime, Path = info.FullName, Hidden = isHidden });
+                }
             }
             catch (IOException e)
             {
@@ -148,20 +166,46 @@ namespace SanityArchiver.DesktopUI.ViewModels
         }
 
         /// <summary>
+        /// Deletes the given File Attribute from the File
+        /// </summary>
+        /// <param name="attributes">File's attribute</param>
+        /// <param name="attributesToRemove">Attribute you want to delete</param>
+        /// <returns>The attributes without the chosen one</returns>
+        internal static FileAttributes RemoveAttribute(FileAttributes attributes, FileAttributes attributesToRemove)
+        {
+            return attributes & ~attributesToRemove;
+        }
+
+        /// <summary>
         /// Rename file
         /// </summary>
         /// <param name="newName">New name/path for the file</param>
-        internal void RenameFile(string newName)
+        internal void ModifyFile(string newName)
         {
-            string oldPath = _selectedItem.Path;
-            int lengthOfOldName = _selectedItem.Title.Length;
+            string oldPath = SelectedItem.Path;
+            int lengthOfOldName = SelectedItem.Title.Length;
             string subStringOldPath = oldPath.Substring(0, oldPath.Length - lengthOfOldName);
             string newPath = subStringOldPath + newName;
-            File.Move(oldPath, newPath);
-            SelectedItem.Path = newPath;
-            SelectedItem.Title = newName;
 
-            OnPropertyChanged("Renamed");
+            FileAttributes attributes = File.GetAttributes(SelectedItem.Path);
+            if ((attributes & FileAttributes.Directory) != FileAttributes.Directory)
+            {
+                File.Move(oldPath, newPath);
+                SelectedItem.Path = newPath;
+                SelectedItem.Title = newName;
+            }
+
+            if ((attributes & FileAttributes.Hidden) == FileAttributes.Hidden && !SelectedItem.Hidden)
+            {
+                attributes = RemoveAttribute(attributes, FileAttributes.Hidden);
+                File.SetAttributes(SelectedItem.Path, attributes);
+                SelectedItem.Hidden = false;
+            }
+            else
+            {
+                File.SetAttributes(SelectedItem.Path, File.GetAttributes(SelectedItem.Path) | FileAttributes.Hidden);
+                SelectedItem.Hidden = true;
+            }
         }
 
         /// <summary>
@@ -169,7 +213,15 @@ namespace SanityArchiver.DesktopUI.ViewModels
         /// </summary>
         internal void DeleteFile()
         {
-            File.Delete(SelectedItem.Path);
+            if (SelectedItem.FileSystemInfo.Attributes.HasFlag(FileAttributes.Directory))
+            {
+                Directory.Delete(SelectedItem.Path);
+            }
+            else
+            {
+                File.Delete(SelectedItem.Path);
+            }
+
             OnPropertyChanged("Delete");
         }
 
@@ -195,16 +247,33 @@ namespace SanityArchiver.DesktopUI.ViewModels
         {
             string oldPath = SelectedItem.Path;
             int lengthOfOldName = SelectedItem.Title.Length;
-            string zipFolder = oldPath.Substring(0, oldPath.Length - lengthOfOldName);
+            string folderToExtract = oldPath.Substring(0, oldPath.Length - lengthOfOldName);
             string tempFolder = TempFolderPath + "\\" + SelectedItem.Title;
             string zipFileName = SelectedItem.Title.Substring(0, SelectedItem.Title.Length - 4) + ".zip";
-            File.Move(oldPath, tempFolder);
-            ZipFile.CreateFromDirectory(TempFolderPath, zipFolder + zipFileName);
 
-            DirectoryInfo tempFolderToClear = new DirectoryInfo(TempFolderPath);
-            foreach (FileInfo file in tempFolderToClear.GetFiles())
+            FileAttributes attributes = File.GetAttributes(SelectedItem.Path);
+            if ((attributes & FileAttributes.Directory) != FileAttributes.Directory)
             {
-                file.Delete();
+                File.Move(oldPath, tempFolder);
+                ZipFile.CreateFromDirectory(TempFolderPath, folderToExtract + zipFileName);
+
+                DirectoryInfo tempFolderToClear = new DirectoryInfo(TempFolderPath);
+                foreach (FileInfo file in tempFolderToClear.GetFiles())
+                {
+                    file.Delete();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Decompress a file
+        /// </summary>
+        internal void DeCompressFile()
+        {
+            if (Path.GetExtension(SelectedItem.Path).Equals(".zip"))
+            {
+                string extractDestination = SelectedItem.Path.Substring(0, SelectedItem.Path.Length - SelectedItem.Title.Length);
+                ZipFile.ExtractToDirectory(SelectedItem.Path, extractDestination);
             }
         }
     }

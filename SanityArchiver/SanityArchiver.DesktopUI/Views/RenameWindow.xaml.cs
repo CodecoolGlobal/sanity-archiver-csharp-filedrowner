@@ -35,7 +35,12 @@ namespace SanityArchiver.DesktopUI.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            _vm.RenameFile(input.Text);
+            _vm.ModifyFile(input.Text);
+            Close();
+        }
+
+        private void Cancel_Window(object sender, RoutedEventArgs e)
+        {
             Close();
         }
     }

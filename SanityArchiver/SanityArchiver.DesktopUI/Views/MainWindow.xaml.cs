@@ -84,5 +84,10 @@ namespace SanityArchiver.DesktopUI.Views
         {
             _vm.CompressFile();
         }
+
+        private void Decompress_File(object sender, RoutedEventArgs e)
+        {
+            _vm.DeCompressFile();
+        }
     }
 }

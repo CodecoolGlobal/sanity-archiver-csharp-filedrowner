@@ -42,6 +42,16 @@ namespace SanityArchiver.Application.Models
             Path = info.FullName;
             CreationDate = info.CreationTime;
 
+            FileInfo file = new FileInfo(Path);
+            if (file.Attributes.HasFlag(FileAttributes.Hidden))
+            {
+                Hidden = true;
+            }
+            else
+            {
+                Hidden = false;
+            }
+
             if (info is DirectoryInfo)
             {
                 AddDummy();
@@ -101,7 +111,6 @@ namespace SanityArchiver.Application.Models
             set
             {
                 SetValue("Title", value);
-                OnPropertyChanged("Title");
             }
         }
 
@@ -130,6 +139,15 @@ namespace SanityArchiver.Application.Models
         {
             get { return GetValue<long>("Size"); }
             set { SetValue("Size", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the file hide property
+        /// </summary>
+        public bool Hidden
+        {
+            get { return GetValue<bool>("Hidden"); }
+            set { SetValue("Hidden", value);  }
         }
 
         /// <summary>

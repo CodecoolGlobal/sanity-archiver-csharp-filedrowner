@@ -6,7 +6,7 @@
         xmlns:classes="clr-namespace:SanityArchiver.Application.Models;assembly=SanityArchiver.Application"
         xmlns:vm="clr-namespace:SanityArchiver.DesktopUI.ViewModels;assembly=SanityArchiver.DesktopUI"
         mc:Ignorable="d"
-        Title="Sanity Archiver" Height="450" Width="800">
+        Title="Sanity Archiver" Height="750" Width="1100">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -42,15 +42,17 @@
             </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=Title}"/>
-                    <GridViewColumn Header="Creation Date" DisplayMemberBinding="{Binding Path=CreationDate}"/>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=Title}" Width="110"/>
+                    <GridViewColumn Header="Creation Date" DisplayMemberBinding="{Binding Path=CreationDate}" Width="140"/>
                     <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Path=Size}"/>
+                    <GridViewColumn Header="IsHidden" DisplayMemberBinding="{Binding Path=Hidden}"/>
                 </GridView>
             </ListView.View>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Compress" Click="Compress_File"/>
                     <MenuItem Header="Delete" Click="Delete_Click"/>
+                    <MenuItem Header="DeCompress" Click="Decompress_File"/>
                 </ContextMenu>
             </ListView.ContextMenu>
         </ListView>

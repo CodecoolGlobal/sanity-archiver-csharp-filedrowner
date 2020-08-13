@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SanityArchiver.DesktopUI.Views"
         mc:Ignorable="d"
-        Title="RenameWindow" Height="200" Width="400">
+        Title="Rename IT" Height="200" Width="400">
     <Grid>
-        <TextBlock HorizontalAlignment="Left" Margin="38,10,0,0" TextWrapping="Wrap" Text="Give it a new Name below:" FontSize="20" VerticalAlignment="Top" Height="49" Width="238"/>
-        <TextBox x:Name="input" HorizontalAlignment="Left" Height="38" Margin="38,83,0,0" TextWrapping="Wrap" Text="{Binding SelectedItem.Title,Mode=OneWay}" VerticalAlignment="Top" Width="230"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="295,83,0,0" VerticalAlignment="Top" Width="75" Height="38" Click="Button_Click"/>
-
+        <TextBlock HorizontalAlignment="Left" Margin="38,10,0,0" TextWrapping="Wrap" Text="Give it a new Name/Extension below:" FontSize="20" VerticalAlignment="Top" Height="49" Width="332"/>
+        <TextBox x:Name="input" HorizontalAlignment="Left" Height="38" Margin="38,50,0,0" TextWrapping="Wrap" Text="{Binding SelectedItem.Title,Mode=OneWay}" VerticalAlignment="Top" Width="332"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="57,119,0,0" VerticalAlignment="Top" Width="75" Height="38" Click="Button_Click"/>
+        <Button Content="Cancel" HorizontalAlignment="Left" Margin="271,119,0,0" VerticalAlignment="Top" Width="82" Height="38" Click="Cancel_Window"/>
+        <CheckBox Content="Hidden" HorizontalAlignment="Left" Margin="38,99,0,0" VerticalAlignment="Top" IsChecked="{Binding SelectedItem.Hidden, Mode=TwoWay}"/>
     </Grid>
 </Window>
