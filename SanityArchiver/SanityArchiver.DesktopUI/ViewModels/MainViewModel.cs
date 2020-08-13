@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Windows.Controls;
 using SanityArchiver.Application.Models;
@@ -12,6 +13,7 @@ namespace SanityArchiver.DesktopUI.ViewModels
     /// </summary>
     public class MainViewModel : PropertyNotifier
     {
+        private const string TempFolderPath = @"E:\TestForArchive";
         private static MainViewModel _instance;
         private FileSystemObjectInfo _selectedItem;
         private ObservableCollection<FileSystemObjectInfo> _searchedObjects;
@@ -151,16 +153,59 @@ namespace SanityArchiver.DesktopUI.ViewModels
         /// <param name="newName">New name/path for the file</param>
         internal void RenameFile(string newName)
         {
-            string oldTitle = SelectedItem.Title;
             string oldPath = _selectedItem.Path;
             int lengthOfOldName = _selectedItem.Title.Length;
             string subStringOldPath = oldPath.Substring(0, oldPath.Length - lengthOfOldName);
             string newPath = subStringOldPath + newName;
-            /*_selectedItem.Path = newPath;
-            _selectedItem.Title = newName;*/
             File.Move(oldPath, newPath);
+            SelectedItem.Path = newPath;
+            SelectedItem.Title = newName;
 
             OnPropertyChanged("Renamed");
+        }
+
+        /// <summary>
+        /// Deletes File
+        /// </summary>
+        internal void DeleteFile()
+        {
+            File.Delete(SelectedItem.Path);
+            OnPropertyChanged("Delete");
+        }
+
+        /// <summary>
+        /// Save the selected item to the Field
+        /// </summary>
+        /// <param name="item">Item to save</param>
+        internal void SelectedFileSaveToField(ListViewItem item)
+        {
+            foreach (FileSystemObjectInfo file in _searchedObjects)
+            {
+                if (file.Path.Equals(item.Tag.ToString()))
+                {
+                    SelectedItem = file;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Compress
+        /// </summary>
+        internal void CompressFile()
+        {
+            string oldPath = SelectedItem.Path;
+            int lengthOfOldName = SelectedItem.Title.Length;
+            string zipFolder = oldPath.Substring(0, oldPath.Length - lengthOfOldName);
+            string tempFolder = TempFolderPath + "\\" + SelectedItem.Title;
+            string zipFileName = SelectedItem.Title.Substring(0, SelectedItem.Title.Length - 4) + ".zip";
+            File.Move(oldPath, tempFolder);
+            ZipFile.CreateFromDirectory(TempFolderPath, zipFolder + zipFileName);
+
+            DirectoryInfo tempFolderToClear = new DirectoryInfo(TempFolderPath);
+            foreach (FileInfo file in tempFolderToClear.GetFiles())
+            {
+                file.Delete();
+            }
         }
     }
 }

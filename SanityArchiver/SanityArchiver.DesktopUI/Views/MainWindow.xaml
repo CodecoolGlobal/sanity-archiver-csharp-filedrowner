@@ -37,6 +37,7 @@
                 <Style TargetType="ListViewItem">
                     <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
                     <Setter Property="Tag" Value="{Binding Path=Path}"/>
+                    <EventSetter Event="MouseLeftButtonUp" Handler="ListViewItem_MouseLeftButtonDown"/>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.View>
@@ -46,6 +47,13 @@
                     <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Path=Size}"/>
                 </GridView>
             </ListView.View>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Compress" Click="Compress_File"/>
+                    <MenuItem Header="Delete" Click="Delete_Click"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
         </ListView>
+        
     </Grid>
 </Window>

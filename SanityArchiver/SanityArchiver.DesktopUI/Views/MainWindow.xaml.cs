@@ -68,5 +68,21 @@ namespace SanityArchiver.DesktopUI.Views
             RenameWindow popUp = new RenameWindow();
             popUp.Show();
         }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            _vm.DeleteFile();
+        }
+
+        private void ListViewItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = sender as ListViewItem;
+            _vm.SelectedFileSaveToField(item);
+        }
+
+        private void Compress_File(object sender, RoutedEventArgs e)
+        {
+            _vm.CompressFile();
+        }
     }
 }
