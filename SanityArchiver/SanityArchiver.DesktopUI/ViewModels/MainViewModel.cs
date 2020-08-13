@@ -211,7 +211,7 @@ namespace SanityArchiver.DesktopUI.ViewModels
         /// <summary>
         /// Deletes File
         /// </summary>
-        internal void DeleteFile()
+        internal void DeleteFileOrFolder()
         {
             if (SelectedItem.FileSystemInfo.Attributes.HasFlag(FileAttributes.Directory))
             {

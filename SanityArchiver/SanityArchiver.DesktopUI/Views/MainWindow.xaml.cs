@@ -71,7 +71,7 @@ namespace SanityArchiver.DesktopUI.Views
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            _vm.DeleteFile();
+            _vm.DeleteFileOrFolder();
         }
 
         private void ListViewItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
